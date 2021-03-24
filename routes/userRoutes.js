@@ -8,8 +8,6 @@ import {
   fetchGamerTags,
   changePassword,
   getMessage,
-  submitKyc,
-  kycStatus,
   unreadNotification,
   sendFollowRequest,
   acceptFollowRequest,
