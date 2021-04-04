@@ -38,30 +38,14 @@ const io = socket(server);
 // configure to only allow requests from certain origins
 app.use(cors());
 
-// Sentry configuration
-// Sentry.init({
-//   dsn: process.env.SENTRY_DNS,
 
-//   // We recommend adjusting this value in production, or using tracesSampler
-//   // for finer control
-//   tracesSampleRate: 1.0,
-// });
-
-// // RequestHandler creates a separate execution context using domains, so that every
-// // transaction/span/breadcrumb is attached to its own Hub instance
-// app.use(Sentry.Handlers.requestHandler());
-// // TracingHandler creates a trace for every incoming request
-// app.use(Sentry.Handlers.tracingHandler());
-
-// // The error handler must be before any other error middleware and after all controllers
-// app.use(Sentry.Handlers.errorHandler());
 
 // parsing the request bodys
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // public folder to fetch images
-app.use("/public", express.static(__dirname + "/public"));
+app.use("/public", express.static("public"));
 // secure your private routes with jwt auth *-+entication middleware
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
