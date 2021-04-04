@@ -1,5 +1,7 @@
 import express from 'express';
 import { chnageNotificationStatus } from '../controllers/adminControllers.js';
+import { fetchRecentChats, fetchRecentChatUser } from '../controllers/messageControllers.js';
+import { commentOnPost, createNewPost, deletePost, fetchPosts, fetchPostsByUser, likeComment, likePost, updatePost } from '../controllers/postControllers.js';
 import {
   editUserDetails,
   getUserDetails,
@@ -55,5 +57,40 @@ router.post('/cancelReceiveFollowRequest', authService().protect, cancelReceiveF
 
 // POST /api/user/unFollowRequest
 router.post('/unFollowRequest', authService().protect, unFollowRequest);
+
+
+// .................... POST & COMMENT & LIKE .................. //
+
+// POST create a new Post
+router.post('/createPost', authService().protect, createNewPost);
+
+// POST update a post
+router.post('/updatePost', authService().protect, updatePost);
+
+// POST delete a post
+router.post('/deletePost', authService().protect, deletePost);
+
+// POST fetch all post
+router.post('/posts', authService().protect, fetchPosts);
+
+// POST fetch  posts by User
+router.post('/usersPost', authService().protect, fetchPostsByUser);
+
+// POST like a post
+router.post('/likePost', authService().protect, likePost);
+
+// POST comment on a post
+router.post('/commentPost', authService().protect, commentOnPost);
+
+// POST like a comment
+router.post('/likeComment', authService().protect, likeComment);
+
+// ................... MESSAGE ROUTES .........................//
+
+// POST fetch recent chat user
+router.post('/fetchRecentUser', authService().protect, fetchRecentChatUser);
+
+// POST fetch recent chats
+router.post('/fetchRecentChats', authService().protect, fetchRecentChats);
 
 export default router;
