@@ -4,7 +4,7 @@ dotenv.config();
 
 const config = {
   mailOptions: {
-    from: 'developer@websultanate.com',
+    from: 'mcc.dev-connect@gmail.com',
     signup: {
       subject: 'Verify your Player LOUNGE account',
       text: 'Hello world',

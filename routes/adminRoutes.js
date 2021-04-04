@@ -2,13 +2,8 @@ import express from 'express';
 
 import {
   addAdmin,
-  addEntryFee,
-  addGame,
-  addGameVersion,
-  addPlatform,
   blockUser,
   blockAdmin,
-  getAllEntryFee,
   getAllSubAdmin,
   getCounts,
   getUser,
@@ -25,17 +20,8 @@ import {
   uploadAdminImage,
   changePassword,
   getAdmin,
-  kycList,
-  kycVerify,
-  matchesList,
-  fetchCommission,
-  updateCommission,
   unreadNotification,
   chnageNotificationStatus,
-  verifiedKycList,
-  rejectedKycList,
-  disputeMatchList,
-  resolveDisputeMatch,
 } from '../controllers/adminControllers.js';
 
 import authService from '../services/auth.service.js';

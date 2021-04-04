@@ -2,17 +2,19 @@
  * third party libraries
  */
 import express from 'express';
+import path from 'path';
 import http from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const socket = require('socket.io');
-
+const moduleURL = new URL(import.meta.url);
+const __dirname = path.dirname(moduleURL.pathname);
+console.log(__dirname);
 // import * as Sentry from '@sentry/node';
 
 // server configuration
-import auth from './services/auth.service.js';
 import connectDB from './config/dbConnection.js';
 
 // import All routes
@@ -58,8 +60,9 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// secure your private routes with jwt authentication middleware
-app.all('/private/*', (req, res, next) => auth(req, res, next));
+// public folder to fetch images
+app.use("/public", express.static(__dirname + "/public"));
+// secure your private routes with jwt auth *-+entication middleware
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);

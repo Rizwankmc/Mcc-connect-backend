@@ -29,7 +29,7 @@ const authService = () => {
                   const admin_ref = jwt.verify(admin.refresh_token, process.env.REFRESH_SECRET);
                   if (admin_ref.id === userId.id) {
                     req.body.userId = userId.id;
-                    return next();
+                    next();
                   }
                 }
                 if (user && user.refresh_token !== '') {
@@ -37,7 +37,7 @@ const authService = () => {
                   if (user_ref.id === userId.id) {
                     req.body.userId = userId.id;
                     console.log('expire');
-                    return next();
+                    next();
                   }
                 }
                 return res.send({ code: 401, msg: 'Session Expired' });
@@ -48,7 +48,7 @@ const authService = () => {
             const userId = jwt.verify(token, secret);
             console.log('UUSer =>', userId.id);
             req.body.userId = userId.id;
-            return next();
+            next();
           } catch (error) {
             console.error(error);
             res.send({ code: 401, msg: 'Not Authorized' });

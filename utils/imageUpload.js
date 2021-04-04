@@ -1,31 +1,30 @@
-import AWS from 'aws-sdk';
+import multer from 'multer';
 
-    AWS.config.update({
-        region: 'us-east-2'
-      })
- 
-    const S3_BUCKET = process.env.S3_BUCKET_NAME;
+//Uploading Image
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/profileimages/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
+  }
+}
+);
 
-    export const sign_s3 = async (buffer, name, type) => {
-      try{
-        const s3 = new AWS.S3({
-          accessKeyId: 'AKIAWFTM346Y35PMDXJA',
-          secretAccessKey: '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',
-          // signatureVersion: 'v4',
-        }); 
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg' || file.mimetype === 'image/png') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+}
 
-        const s3Params = {
-            Bucket: 'playerloungestorage',
-            Body: buffer,
-            Key: `${name}.${type}`,
-            Expires: 500,
-            ACL: 'public-read',
-            // 'Content-Type': type,
-          };
-          const url = s3.upload(s3Params).promise();
-            return url;
-        } catch (err) {
-          console.log("Error in Image Uplaod =>",err);
-        }
-    }
+export const profileImage = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5
+  },
+  fileFilter: fileFilter
+});
+
 

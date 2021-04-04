@@ -1,8 +1,7 @@
 import sentryCapture from '../services/sentry.service.js';
 import UsersModel from '../models/userModel.js';
 import fs from 'fs';
-import multiparty from 'multiparty';
-import { sign_s3 } from '../utils/imageUpload.js';
+import multiparty from 'multiparty'; 
 import NotificationModal from '../models/notification.js';
 import User from '../models/userModel.js';
 
@@ -54,40 +53,23 @@ export const editUserDetails = async (req, res) => {
 export const uploadUserImage = async (req, res) => {
   try {
     const { userId } = req.body;
-    const form = new multiparty.Form();
-    form.parse(req, async (error, fields, files) => {
-      if (error) throw new Error(error);
-      try {
-        const { path } = files.photo[0];
-        const buffer = fs.readFileSync(path);
-        const type = files.photo[0].originalFilename.split('.')[1];
-        const timestamp = Date.now().toString();
-        const fileName = `bucketFolder/${timestamp}-lg`;
-        const data = await sign_s3(buffer, fileName, type);
-        console.log('--------------------------->', data);
-        if (data.Location) {
-          const user = await UsersModel.updateOne(
-            { _id: userId },
-            {
-              photo: data.Location,
-            }
-          );
-          console.log('Data---->', data, user, path);
-          if (user.nModified === 1) {
-            res.send({ code: 200, msg: 'Image Uploaded Successfully.' });
-          } else {
-            res.send({ code: 404, msg: 'User not Found' });
-          }
-        }
-      } catch (err) {
-        sentryCapture(err);
-        console.log(err);
-        res.send({ code: 500, msg: 'Internal Server Error' });
+    console.log(req.file.path);
+    const path = req.file.path.split('\\')
+    const user = await UsersModel.updateOne(
+      { _id: userId },
+      {
+        photo: path.join('/'),
       }
-    });
+    );
+    console.log(user)
+    if (user.nModified === 1) {
+      res.send({ code: 200, msg: 'Image Uploaded Successfully.' });
+    } else {
+      res.send({ code: 404, msg: 'User not Found' });
+    }
   } catch (e) {
     sentryCapture(e);
-    console.log(e);
+    console.log("Error in profile image upload =>", e.message);
     res.send({
       code: 404,
       msg: 'Some error occured!',

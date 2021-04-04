@@ -10,7 +10,6 @@ import { signupHTML, forgetHTML, addAdminMail } from '../templates/signupHTML.js
 import generateOTP from '../utils/generateOtp.js';
 import fs from 'fs';
 import multiparty from 'multiparty';
-import { sign_s3 } from '../utils/imageUpload.js';
 import NotificationModal from '../models/notification.js';
 import { match } from 'assert';
 
@@ -389,188 +388,8 @@ export const editAdmin = async (req, res) => {
   return 0;
 };
 
-//  below updates are made by rizwan sir
-// admin
-export const addEntryFee = async (req, res) => {
-  try {
-    const { body } = req;
-    const entry = await EntryFee.create({
-      title: body.title,
-      description: body.description,
-    });
-    if (entry) {
-      res.send({ code: 200, msg: 'Entry Added Successfully.' });
-    } else res.send({ code: 200, msg: 'Some error Occuered' });
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in addEntryFee =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
 
-// admin or superadmin
-export const getAllEntryFee = async (req, res) => {
-  try {
-    const data = await EntryFee.find({});
-    res.send({ code: 200, data });
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in addEntryFee =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
 
-export const addGame = async (req, res) => {
-  try {
-    const { body } = req;
-    const form = new multiparty.Form();
-    form.parse(req, async (error, fields, files) => {
-      if (error) throw new Error(error);
-      try {
-        const { path } = files.photo[0];
-        const buffer = fs.readFileSync(path);
-        const type = files.photo[0].originalFilename.split('.')[1];
-        const timestamp = Date.now().toString();
-        const fileName = `bucketFolder/${timestamp}-lg`;
-        const data = await sign_s3(buffer, fileName, type);
-        if (data.Location) {
-          const game = await GameTitle.create({
-            gameName: fields.gameName[0],
-            description: fields.description[0],
-            category: fields.category[0],
-            photo: data.Location,
-            addBy: body.userId,
-          });
-          if (game) {
-            res.send({ code: 200, msg: 'Add Successfully.' });
-          } else {
-            res.send({ code: 404, msg: 'Some Error Occured' });
-          }
-        }
-      } catch (err) {
-        sentryCapture(err);
-        console.log(err);
-        res.send({ code: 500, msg: 'Internal Server Error' });
-      }
-    });
-  } catch (e) {
-    sentryCapture(e);
-    console.log(e);
-    res.send({
-      code: 404,
-      msg: 'Some error occured!',
-    });
-  }
-};
-export const addGameVersion = async (req, res) => {
-  try {
-    const { body } = req;
-
-    const game = await GameModel.create({
-      gameName: body.gameName,
-      description: body.description,
-      category: body.category,
-      rules: body.rules,
-      photo: body.photo,
-      formate: body.formate,
-      addBy: body.userId,
-    });
-    if (game) {
-      await PlatformModel.updateOne(
-        { _id: body.platformId },
-        {
-          $push: {
-            games: game.id,
-          },
-        }
-      );
-      res.send({ code: 200, msg: 'Added Successfully.' });
-    } else {
-      res.send({ code: 300, msg: 'Some Error Occured' });
-    }
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in addGameVersion =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
-
-// admin or superadmin
-export const addPlatform = async (req, res) => {
-  try {
-    const { body } = req;
-    const platform = await PlatformModel.create({
-      name: body.name,
-      description: body.description,
-      addBy: body.userId,
-    });
-    if (platform) {
-      await GameTitle.updateOne(
-        { _id: body.gameId },
-        {
-          $push: {
-            platform: platform.id,
-          },
-        }
-      );
-      res.send({ code: 200, msg: 'Platform Added Successfully ' });
-    }
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in addGame =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
-
-// public access
-export const getAllGame = async (req, res) => {
-  try {
-    const game = await GameTitle.find({});
-    if (game) {
-      res.send({ code: 200, games: game });
-    } else {
-      res.send({ code: 300, msg: 'Some Error Occured' });
-    }
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in getAllGame =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
-
-export const getAllGameVersionByPlatformId = async (req, res) => {
-  try {
-    const { body } = req;
-    const { games } = await PlatformModel.findOne({ _id: body.platformId });
-    const game = await GameModel.find().where('_id').in(games).exec();
-    if (game) {
-      res.send({ code: 200, games: game });
-    } else {
-      res.send({ code: 300, msg: 'Some Error Occured' });
-    }
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in getAllGame =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
-
-export const getAllPlatformByGameId = async (req, res) => {
-  try {
-    const { body } = req;
-    const { platform } = await GameTitle.findOne({ _id: body.gameId });
-    const platforms = await PlatformModel.find().where('_id').in(platform).exec();
-    if (platforms) {
-      res.send({ code: 200, platforms });
-    } else {
-      res.send({ code: 300, msg: 'Some Error Occured' });
-    }
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in getAllPlatform =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
 
 export const getCounts = async (req, res) => {
   try {
@@ -618,20 +437,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const getAllGameVersion = async (req, res) => {
-  try {
-    const game = await GameModel.find({});
-    if (game) {
-      res.send({ code: 200, games: game });
-    } else {
-      res.send({ code: 300, msg: 'Some Error Occured' });
-    }
-  } catch (err) {
-    sentryCapture(err);
-    console.log('Error in getAllGame =>', err);
-    res.send({ code: 500, msg: 'Internal Server Error' });
-  }
-};
 
 // Admin Profile Section
 
@@ -682,23 +487,10 @@ export const editAdminDetails = async (req, res) => {
 export const uploadAdminImage = async (req, res) => {
   try {
     const { userId } = req.body;
-
-    const form = new multiparty.Form();
-    form.parse(req, async (error, files) => {
-      if (error) throw new Error(error);
-      try {
-        console.log(files);
-        const { path } = files.photo[0];
-        const buffer = fs.readFileSync(path);
-        const type = files.photo[0].originalFilename.split('.')[1];
-        const timestamp = Date.now().toString();
-        const fileName = `bucketFolder/${timestamp}-lg`;
-        const data = await sign_s3(buffer, fileName, type);
-        if (data.Location) {
           const user = await AdminModel.updateOne(
             { _id: userId },
             {
-              photo: data.Location,
+              photo: req.file.path,
             }
           );
           if (user.nModified === 1) {
@@ -706,13 +498,6 @@ export const uploadAdminImage = async (req, res) => {
           } else {
             res.send({ code: 404, msg: 'User not Found' });
           }
-        }
-      } catch (err) {
-        sentryCapture(err);
-        console.log(err);
-        res.send({ code: 500, msg: 'Internal Server Error' });
-      }
-    });
   } catch (e) {
     sentryCapture(e);
     console.log(e);
