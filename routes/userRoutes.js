@@ -16,6 +16,7 @@ import {
   cancelSendFollowRequest,
   cancelReceiveFollowRequest,
   unFollowRequest,
+  uploadUserCoverImage,
 } from '../controllers/userControllers.js';
 import authService from '../services/auth.service.js';
 import { profileImage } from '../utils/imageUpload.js';
@@ -30,6 +31,9 @@ router.post('/editprofile', authService().protect, editUserDetails);
 
 // POST /api/user/uploadImagee Private
 router.post('/uploadImage', profileImage.single('img'), authService().protect, uploadUserImage);
+
+// POST /api/user/uploadImagee Private
+router.post('/uploadCoverImage', profileImage.single('img'), authService().protect, uploadUserCoverImage);
 
 // user self change password
 router.post('/changepassword', authService().protect, changePassword);

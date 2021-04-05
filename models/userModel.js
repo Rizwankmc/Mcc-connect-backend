@@ -36,6 +36,10 @@ const schema = mongoose.Schema(
       type: String,
       default: 'user/default.png',
     },
+    coverPhoto: {
+      type: String,
+      default: 'user/default.png',
+    },
     isVerified: {
       type: Boolean,
       default: false,

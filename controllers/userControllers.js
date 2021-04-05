@@ -77,6 +77,32 @@ export const uploadUserImage = async (req, res) => {
   }
 };
 
+export const uploadUserCoverImage = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    console.log(req.file.path);
+    const path = req.file.path.split('\\')
+    const user = await UsersModel.updateOne(
+      { _id: userId },
+      {
+        coverPhoto: path.join('/'),
+      }
+    );
+    console.log(user)
+    if (user.nModified === 1) {
+      res.send({ code: 200, msg: 'Image Uploaded Successfully.' });
+    } else {
+      res.send({ code: 404, msg: 'User not Found' });
+    }
+  } catch (e) {
+    sentryCapture(e);
+    console.log("Error in profile image upload =>", e.message);
+    res.send({
+      code: 404,
+      msg: 'Some error occured!',
+    });
+  }
+};
 // edit gamer Tags API
 export const editGamerTags = async (req, res) => {
   try {
